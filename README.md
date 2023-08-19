@@ -1,2 +1,2 @@
 # psql
-scripts
+scripts plpgsql

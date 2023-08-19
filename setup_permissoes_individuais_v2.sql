@@ -1,10 +1,10 @@
 /*										VERSAO 2.0					  				*/
 
 
-create sequence tributech.permissoes_individuais_id_seq;
+create sequence schema.permissoes_individuais_id_seq;
 
-create table tributech.permissoes_individuais(
-	idkey int8 not null default nextval('tributech.permissoes_individuais_id_seq'::regclass),
+create table schema.permissoes_individuais(
+	idkey int8 not null default nextval('schema.permissoes_individuais_id_seq'::regclass),
 	idkey_usuario int8 null,
 	apelido text null,
 	schema_nome text null,
@@ -16,11 +16,11 @@ create table tributech.permissoes_individuais(
 	datahora timestamp NULL DEFAULT now(),
 	validado bool NULL,
 	constraint permissoes_individuais_pk primary key (idkey),
-	constraint permissoes_individuais_usuarios_fk foreign key (idkey_usuario) references tributech.usuarios(idkey)
+	constraint permissoes_individuais_usuarios_fk foreign key (idkey_usuario) references schema.usuarios(idkey)
 );
 
 
-create or replace function tributech.validar_individual_v2()
+create or replace function schema.validar_individual_v2()
 	returns text 
 language plpgsql
 as $function$
@@ -40,7 +40,7 @@ as $function$
 			Usuario PERDE permissões setadas APENAS como 	>> FALSE <<	
 		
 	
-			->	select tributech.validar_individual();
+			->	select schema.validar_individual();
 		
 		
 		---------------------<¤¤     (• . •)     ¤¤>----------------------
@@ -62,9 +62,9 @@ as $function$
 							t.datahora,
 							t.validado
 						from 
-							tributech.permissoes_individuais t
+							schema.permissoes_individuais t
 						left join 
-							tributech.usuarios u 
+							schema.usuarios u 
 							on t.idkey_usuario = u.idkey
 						where 
 							t.validado is null
@@ -83,9 +83,9 @@ as $function$
 							t.datahora,
 							t.validado
 						from 
-							tributech.permissoes_individuais t
+							schema.permissoes_individuais t
 						left join 
-							tributech.usuarios u 
+							schema.usuarios u 
 							on t.idkey_usuario = u.idkey
 						where 
 							t.validado is null
@@ -308,7 +308,7 @@ as $function$
 		
 			/* seta o campo validado como TRUE */ 
 			update 
-				tributech.permissoes_individuais 
+				schema.permissoes_individuais 
 			set 
 				validado = true 
 			where 
@@ -334,9 +334,9 @@ as $function$
 							t.datahora,
 							t.validado
 						from 
-							tributech.permissoes_individuais t
+							schema.permissoes_individuais t
 						left join 
-							tributech.usuarios u 
+							schema.usuarios u 
 							on t.idkey_usuario = u.idkey
 						where 
 							t.validado is null
@@ -350,7 +350,7 @@ $function$;
 
 /**/
 
-create or replace function tributech.atualizar_validado()
+create or replace function schema.atualizar_validado()
  returns trigger
  language plpgsql
 as $function$
@@ -376,7 +376,7 @@ $function$;
 create or replace trigger permissaoindividual_validado 
 before
 	insert or update of p_select, p_insert, p_update, p_delete
-	on tributech.permissoes_individuais
+	on schema.permissoes_individuais
 for each row
-	execute function tributech.atualizar_validado();
+	execute function schema.atualizar_validado();
 end;

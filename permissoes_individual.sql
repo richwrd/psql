@@ -1,11 +1,11 @@
-select tributech.validar_permissoes();
+select schema.validar_permissoes();
 
-select tributech.validar_individual();
+select schema.validar_individual();
 
-create sequence if not exists tributech.permissoes_individuais_id_seq;
+create sequence if not exists schema.permissoes_individuais_id_seq;
 
-create table if not exists tributech.permissoes_indi[viduais(
-	idkey int8 not null default nextval('tributech.permissoes_individuais_id_seq'::regclass),
+create table if not exists schema.permissoes_indi[viduais(
+	idkey int8 not null default nextval('schema.permissoes_individuais_id_seq'::regclass),
 	idkey_usuario int8 null,
 	apelido text null,
 	schema_nome text null,
@@ -17,11 +17,11 @@ create table if not exists tributech.permissoes_indi[viduais(
 	datahora timestamp NULL DEFAULT now(),
 	validado bool NULL,
 	constraint permissoes_individuais_pk primary key (idkey),
-	constraint permissoes_individuais_usuarios_fk foreign key (idkey_usuario) references tributech.usuarios(idkey)
+	constraint permissoes_individuais_usuarios_fk foreign key (idkey_usuario) references schema.usuarios(idkey)
 );
 
 
-create or replace function tributech.validar_individual()
+create or replace function schema.validar_individual()
 	returns text 
 language plpgsql
 as $function$
@@ -32,30 +32,30 @@ as $function$
 	begin
 /*===========================================================================
 		
-					Permissão em schema por usuario
+					Permissï¿½o em schema por usuario
 	exemplo:
 	
-		---------------------<¤¤ GRANT / REVOKE ¤¤>-----------------------
+		---------------------<ï¿½ï¿½ GRANT / REVOKE ï¿½ï¿½>-----------------------
 	
-			Usuario RECEBE permissões setadas APENAS como   >> TRUE  <<	
-			Usuario PERDE permissões setadas APENAS como 	>> FALSE <<	
+			Usuario RECEBE permissï¿½es setadas APENAS como   >> TRUE  <<	
+			Usuario PERDE permissï¿½es setadas APENAS como 	>> FALSE <<	
 		
 	
-			->	select tributech.validar_individual();
+			->	select schema.validar_individual();
 		
 		
-		---------------------<¤¤     (• . •)     ¤¤>----------------------
+		---------------------<ï¿½ï¿½     (ï¿½ . ï¿½)     ï¿½ï¿½>----------------------
 	
-						 		¤ by: richard ¤
+						 		ï¿½ by: richard ï¿½
 
 =============================================================================*/
 		
 	if exists (select
 				*
 				from 
-					tributech.permissoes_individuais t
+					schema.permissoes_individuais t
 				left join 
-					tributech.usuarios u 
+					schema.usuarios u 
 					on t.idkey_usuario = u.idkey
 				where 
 					t.validado is null
@@ -74,21 +74,21 @@ as $function$
 							t.datahora,
 							t.validado
 						from 
-							tributech.permissoes_individuais t
+							schema.permissoes_individuais t
 						left join 
-							tributech.usuarios u 
+							schema.usuarios u 
 							on t.idkey_usuario = u.idkey
 						where 
 							t.validado is null
 							or t.validado = false)
 		loop 
 	
-/*---------------------<¤¤ SELECT TRUE ¤¤>-----------------------*/
+/*---------------------<ï¿½ï¿½ SELECT TRUE ï¿½ï¿½>-----------------------*/
 		
-			/* se permissão de SELECT for autorizada */
+			/* se permissï¿½o de SELECT for autorizada */
 			if(info_r.p_select) then
 			
-			/* permissão de usar o esquema antes das demais */
+			/* permissï¿½o de usar o esquema antes das demais */
 			execute format('GRANT USAGE ON SCHEMA %I TO %I', info_r.schema_nome, info_r.usuario_login);
 				
 				/*	select em todas tabelas do schema dado */
@@ -99,7 +99,7 @@ as $function$
 										where 
 											t.table_schema = info_r.schema_nome)
 					loop
-						/* da permissão pra todas tabelas encontradas no schema */						
+						/* da permissï¿½o pra todas tabelas encontradas no schema */						
 						execute format('GRANT SELECT ON %I.%I TO %I',  info_r.schema_nome, recursiva_tables.table_name, info_r.usuario_login);
 					end loop;
 				
@@ -112,13 +112,13 @@ as $function$
 											where 
 												s.sequence_schema = info_r.schema_nome)
 					loop
-						/* da permissão pra todas sequencias encontradas no schema */						
+						/* da permissï¿½o pra todas sequencias encontradas no schema */						
 						execute format('GRANT USAGE ON %I.%I TO %I',  info_r.schema_nome, recursiva_sequencia.sequence_name, info_r.usuario_login);
 						execute format('GRANT SELECT ON %I.%I TO %I',  info_r.schema_nome, recursiva_sequencia.sequence_name, info_r.usuario_login);
 					
 					end loop;	
 
-/*---------------------<¤¤ SELECT FALSE ¤¤>-----------------------*/
+/*---------------------<ï¿½ï¿½ SELECT FALSE ï¿½ï¿½>-----------------------*/
 				
 			elseif(info_r.p_select = false) then 
 			
@@ -147,9 +147,9 @@ as $function$
 			end if;
 		
 		
-/*---------------------<¤¤ INSERT TRUE ¤¤>-----------------------*/
+/*---------------------<ï¿½ï¿½ INSERT TRUE ï¿½ï¿½>-----------------------*/
 		
-			/*se permissão de INSERT for autorizada*/
+			/*se permissï¿½o de INSERT for autorizada*/
 			if(info_r.p_insert) then
 				
 				/*	select em todas tabelas do schema dado */
@@ -160,11 +160,11 @@ as $function$
 										where 
 											t.table_schema = info_r.schema_nome)
 					loop
-						/* da permissão pra todas tabelas encontradas no schema */						
+						/* da permissï¿½o pra todas tabelas encontradas no schema */						
 						execute format('GRANT INSERT ON %I.%I TO %I',  info_r.schema_nome, recursiva_tables.table_name, info_r.usuario_login);
 					end loop;
 
-/*---------------------<¤¤ INSERT FALSE ¤¤>-----------------------*/
+/*---------------------<ï¿½ï¿½ INSERT FALSE ï¿½ï¿½>-----------------------*/
 				
 			elseif(info_r.p_insert = false) then
 
@@ -181,9 +181,9 @@ as $function$
 		
 
 
-/*---------------------<¤¤ UPDATE TRUE ¤¤>-----------------------*/
+/*---------------------<ï¿½ï¿½ UPDATE TRUE ï¿½ï¿½>-----------------------*/
 		
-			/*se permissão de UPDATE for autorizada*/
+			/*se permissï¿½o de UPDATE for autorizada*/
 			if(info_r.p_update) then
 				
 				/*	select em todas tabelas do schema dado */
@@ -194,7 +194,7 @@ as $function$
 										where 
 											t.table_schema = info_r.schema_nome)
 					loop
-						/* da permissão pra todas tabelas encontradas no schema */						
+						/* da permissï¿½o pra todas tabelas encontradas no schema */						
 						execute format('GRANT UPDATE ON %I.%I TO %I',  info_r.schema_nome, recursiva_tables.table_name, info_r.usuario_login);
 					end loop;
 				
@@ -207,13 +207,13 @@ as $function$
 											where 
 												s.sequence_schema = info_r.schema_nome)
 					loop
-						/* da permissão pra todas sequencias encontradas no schema */						
+						/* da permissï¿½o pra todas sequencias encontradas no schema */						
 						execute format('GRANT USAGE ON %I.%I TO %I',  info_r.schema_nome, recursiva_sequencia.sequence_name, info_r.usuario_login);
 						execute format('GRANT UPDATE ON %I.%I TO %I',  info_r.schema_nome, recursiva_sequencia.sequence_name, info_r.usuario_login);
 					
 					end loop;
 	
-/*---------------------<¤¤ UPDATE FALSE ¤¤>-----------------------*/		
+/*---------------------<ï¿½ï¿½ UPDATE FALSE ï¿½ï¿½>-----------------------*/		
 				
 			elseif(info_r.p_update = false) then 
 				
@@ -240,9 +240,9 @@ as $function$
 			end if;
 		
 		
-/*---------------------<¤¤ DELETE TRUE ¤¤>-----------------------*/
+/*---------------------<ï¿½ï¿½ DELETE TRUE ï¿½ï¿½>-----------------------*/
 		
-			/*se permissão de DELETE for autorizada*/
+			/*se permissï¿½o de DELETE for autorizada*/
 			if(info_r.p_delete) then
 				
 				/*	select em todas tabelas do schema dado */
@@ -253,7 +253,7 @@ as $function$
 										where 
 											t.table_schema = info_r.schema_nome)
 					loop
-						/* da permissão pra todas tabelas encontradas no schema */						
+						/* da permissï¿½o pra todas tabelas encontradas no schema */						
 						execute format('GRANT DELETE ON %I.%I TO %I',  info_r.schema_nome, recursiva_tables.table_name, info_r.usuario_login);
 					end loop;
 				
@@ -266,13 +266,13 @@ as $function$
 											where 
 												s.sequence_schema = info_r.schema_nome)
 					loop
-						/* da permissão pra todas sequencias encontradas no schema */						
+						/* da permissï¿½o pra todas sequencias encontradas no schema */						
 						execute format('GRANT USAGE ON %I.%I TO %I',  info_r.schema_nome, recursiva_sequencia.sequence_name, info_r.usuario_login);
 						execute format('GRANT DELETE ON %I.%I TO %I',  info_r.schema_nome, recursiva_sequencia.sequence_name, info_r.usuario_login);
 					
 					end loop;
 	
-/*---------------------<¤¤ DELETE FALSE ¤¤>-----------------------*/
+/*---------------------<ï¿½ï¿½ DELETE FALSE ï¿½ï¿½>-----------------------*/
 				
 			elseif(info_r.p_delete = false) then
 
@@ -301,7 +301,7 @@ as $function$
 		
 			/* seta o campo validado como TRUE */ 
 			update 
-				tributech.permissoes_individuais 
+				schema.permissoes_individuais 
 			set 
 				validado = true 
 			where 
@@ -313,7 +313,7 @@ as $function$
 	/*fim do if */
 		return 'Validado com SUCESSO!';	
 	else
-		return 'Todos usuários estão validados, não há nada a fazer.';	
+		return 'Todos usuï¿½rios estï¿½o validados, nï¿½o hï¿½ nada a fazer.';	
 	end if;
 
 end; 
@@ -322,7 +322,7 @@ $function$;
 
 /**/
 
-create or replace function tributech.atualizar_validado()
+create or replace function schema.atualizar_validado()
  returns trigger
  language plpgsql
 as $function$
@@ -348,7 +348,7 @@ $function$;
 create trigger permissaoindividual_validado 
 before
 	insert or update of p_select, p_insert, p_update, p_delete
-	on tributech.permissoes_individuais
+	on schema.permissoes_individuais
 for each row
-	execute function tributech.atualizar_validado();
+	execute function schema.atualizar_validado();
 end;

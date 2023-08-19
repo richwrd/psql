@@ -1,14 +1,14 @@
 /*----------------------------------< FUNÇÃO ALTERAR USUARIO SUPERUSER -> SISTEMA >------------------------------------------*/
 
-DROP FUNCTION tributech.alter_owner();
+DROP FUNCTION schema.alter_owner();
 
-ALTER FUNCTION tributech.alter_owner OWNER TO MASTER;
+ALTER FUNCTION schema.alter_owner OWNER TO MASTER;
 
-SELECT tributech.alter_owner();
+SELECT schema.alter_owner();
 
-CREATE SCHEMA tributech;
+CREATE SCHEMA schema;
 
-CREATE OR REPLACE FUNCTION tributech.alter_owner()
+CREATE OR REPLACE FUNCTION schema.alter_owner()
  RETURNS TEXT  
 LANGUAGE plpgsql
 AS $emp_stamp$
@@ -26,14 +26,14 @@ BEGIN
 	
 			Entidades em seu nome passam a ser MASTER
 		
-			->	SELECT tributech.alter_owner();
+			->	SELECT schema.alter_owner();
 			
 			
 		---------------------<{ Validacao do SCHEMA }>-----------------------
 			
-			Schema alterado recebe FALSE em tributech.permissoes_schema.validado
+			Schema alterado recebe FALSE em schema.permissoes_schema.validado
 			
-			-> SELECT tributech.validar_permissoes();
+			-> SELECT schema.validar_permissoes();
 			
 			Permite todos grupos cadastrados terem acesso a tabela.
 		
@@ -60,7 +60,7 @@ BEGIN
 		RAISE NOTICE '|--<{SCHEMA}>---<[ % ]>--|', schemas_r.schema_name;
 		
 		EXECUTE format('alter schema %s owner to MASTER', schemas_r.schema_name);
-		EXECUTE format('update tributech.permissoes_schema set validado = false where schema_name ~~ ''%s'' and (recursivo_select = TRUE OR recursivo_update = TRUE OR recursivo_delete = TRUE) ', schemas_r.schema_name);
+		EXECUTE format('update schema.permissoes_schema set validado = false where schema_name ~~ ''%s'' and (recursivo_select = TRUE OR recursivo_update = TRUE OR recursivo_delete = TRUE) ', schemas_r.schema_name);
 	
 	END LOOP;
 	
@@ -81,7 +81,7 @@ BEGIN
 				RAISE NOTICE '|--<{TABELA}>---<[ %.% ]>--|', tables_r.schemaname, tables_r.tablename;
 				
 				EXECUTE format('alter table %s.%s owner to MASTER', tables_r.schemaname, tables_r.tablename);
-				EXECUTE format('update tributech.permissoes_schema set validado = false where schema_name ~~ ''%s'' and (recursivo_select = TRUE OR recursivo_update = TRUE OR recursivo_delete = TRUE) ', tables_r.schemaname);
+				EXECUTE format('update schema.permissoes_schema set validado = false where schema_name ~~ ''%s'' and (recursivo_select = TRUE OR recursivo_update = TRUE OR recursivo_delete = TRUE) ', tables_r.schemaname);
 		
 	END LOOP;
 
@@ -101,7 +101,7 @@ BEGIN
 			RAISE NOTICE '|--<{SEQUENCE}>---<[ %.% ]>--|', sequences_r.schemaname, sequences_r.sequencename;
 		
 			EXECUTE format('alter sequence %s.%s owner to MASTER', sequences_r.schemaname, sequences_r.sequencename);
-			EXECUTE format('update tributech.permissoes_schema set validado = false where schema_name ~~ ''%s'' and (recursivo_select = TRUE OR recursivo_update = TRUE OR recursivo_delete = TRUE) ', sequences_r.schemaname);
+			EXECUTE format('update schema.permissoes_schema set validado = false where schema_name ~~ ''%s'' and (recursivo_select = TRUE OR recursivo_update = TRUE OR recursivo_delete = TRUE) ', sequences_r.schemaname);
 	
 	END LOOP;
  
@@ -122,8 +122,8 @@ BEGIN
 			RAISE NOTICE '|--<{VIEW}>---<[ %.% ]>--|', views_r.schemaname, views_r.viewname;
 		
 			EXECUTE format('alter view %s.%s owner to MASTER', views_r.schemaname, views_r.viewname);
-			EXECUTE format('update tributech.permissoes_schema set validado = false where schema_name ~~ ''%s'' and (recursivo_select = TRUE OR recursivo_update = TRUE OR recursivo_delete = TRUE) ', views_r.schemaname);
-			EXECUTE format('update tributech.permissoes_view set validado = false where schema_name ~~ ''%s'' and p_select = TRUE', views_r.schemaname);
+			EXECUTE format('update schema.permissoes_schema set validado = false where schema_name ~~ ''%s'' and (recursivo_select = TRUE OR recursivo_update = TRUE OR recursivo_delete = TRUE) ', views_r.schemaname);
+			EXECUTE format('update schema.permissoes_view set validado = false where schema_name ~~ ''%s'' and p_select = TRUE', views_r.schemaname);
 	
 	END LOOP;
 
@@ -159,9 +159,9 @@ END $emp_stamp$;
 
 
 
-SELECT tributech.alter_owner();
+SELECT schema.alter_owner();
 
-SELECT tributech.validar_permissoes();
+SELECT schema.validar_permissoes();
 
 
 /*----------------------------------<  TESTING >------------------------------------------*/
@@ -195,9 +195,9 @@ END $$;
 --FAZER 
 
 
-DROP FUNCTION tributech.alter_owner();
+DROP FUNCTION schema.alter_owner();
 
-create or replace function tributech.alter_owner_t()
+create or replace function schema.alter_owner_t()
  RETURNS TRIGGER  
 language plpgsql
 as $emp_stamp$
@@ -241,7 +241,7 @@ BEGIN
 		RAISE NOTICE 'Tabela ( %.% )', tables_r.schemaname, tables_r.tablename;
 		
 		EXECUTE format('alter table %s.%s owner to MASTER', tables_r.schemaname, tables_r.tablename);
-		EXECUTE format('update tributech.permissoes_schema set validado = false where schema_name ~~ ''%s'' and (recursivo_select = TRUE OR recursivo_update = TRUE OR recursivo_delete = TRUE) ', tables_r.schemaname);
+		EXECUTE format('update schema.permissoes_schema set validado = false where schema_name ~~ ''%s'' and (recursivo_select = TRUE OR recursivo_update = TRUE OR recursivo_delete = TRUE) ', tables_r.schemaname);
 	END LOOP;
 
 /* alterar owner to MASTER sequences */
@@ -259,7 +259,7 @@ BEGIN
 		RAISE NOTICE 'Sequencia ( %.% )', sequences_r.schemaname, sequences_r.sequencename;
 		
 		EXECUTE format('alter sequence %s.%s owner to MASTER', sequences_r.schemaname, sequences_r.sequencename);
-		EXECUTE format('update tributech.permissoes_schema set validado = false where schema_name ~~ ''%s'' and (recursivo_select = TRUE OR recursivo_update = TRUE OR recursivo_delete = TRUE) ', sequences_r.schemaname);
+		EXECUTE format('update schema.permissoes_schema set validado = false where schema_name ~~ ''%s'' and (recursivo_select = TRUE OR recursivo_update = TRUE OR recursivo_delete = TRUE) ', sequences_r.schemaname);
 	
 	END LOOP;
 
